@@ -5,20 +5,20 @@ local constants = require "ecnet2.constants"
 local handlers = {}
 
 --- @param message string
-local function enqueue(message, side)
+local function enqueue(message, side, ch, dist)
     if type(message) ~= "string" then return end
     if #message >= 2 ^ 16 then return end
     if #message < 32 then return end
     local descriptor = message:sub(1, 32)
     local etc = message:sub(33)
     local handler = handlers[descriptor]
-    if handler then return handler(etc, side) end
+    if handler then return handler(etc, side, ch, dist) end
 end
 
 local function daemon()
     while true do
-        local _, side, ch, _, msg = coroutine.yield("modem_message")
-        if ch == constants.CHANNEL then enqueue(msg, side) end
+        local _, side, ch, _, msg, dist = coroutine.yield("modem_message")
+        if ch == constants.CHANNEL then enqueue(msg, side, ch, dist) end
     end
 end
 
